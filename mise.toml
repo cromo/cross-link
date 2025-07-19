@@ -1,0 +1,6 @@
+[tools]
+node = "22"
+
+[tasks]
+build = "npx webpack"
+format = "npx prettier . --write"
