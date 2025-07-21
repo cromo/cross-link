@@ -26,7 +26,10 @@ export type PageAugmenterSteps<PageContext, ExternalContext> = {
    * dollar-per-hour rate.
    * @param document The document for the current page.
    * @returns Context extracted from the document, whether that be from the URL
-   * or page content.
+   * or page content. Is a `Promise` so that extraction can take as long as
+   * needed, e.g. when the page does not include the desired data on load but
+   * adds it within a few seconds, e.g. YouTube videos add the link to the
+   * channel after much of the rest of the page has loaded.
    */
   extract: (document: Document) => Promise<PageContext>;
   /**
@@ -43,11 +46,12 @@ export type PageAugmenterSteps<PageContext, ExternalContext> = {
   /**
    * Alters the current page, preferably making the new data fit in with the
    * existing page structure.
+   * @param document The document of the current page to be modified.
    * @param context The combination of the data extracted from the document and
    * the data collected from external sources.
    * @returns Nothing.
    */
-  augment: (context: PageContext & ExternalContext) => void;
+  augment: (document: Document, context: PageContext & ExternalContext) => void;
 };
 
 /**
@@ -64,7 +68,10 @@ export function pageAugmenterSteps<PageContext, ExternalContext>(
   guard: ActivationGuard,
   extractor: (document: Document) => Promise<PageContext>,
   collector: (context: PageContext) => Promise<ExternalContext>,
-  augmenter: (context: PageContext & ExternalContext) => void,
+  augmenter: (
+    document: Document,
+    context: PageContext & ExternalContext,
+  ) => void,
 ): PageAugmenterSteps<PageContext, ExternalContext> {
   return {
     guard,

@@ -41,24 +41,34 @@ async function collectExternalSteamAppContext(context: {
   return { howLongToBeat };
 }
 
-function augmentSteamAppPage(context: { howLongToBeat: HltbGameInfo }): void {
+function augmentSteamAppPage(
+  document: Document,
+  context: { howLongToBeat: HltbGameInfo },
+): void {
   if (context.howLongToBeat) {
     addSteamAppInfoBlockLine(
+      document,
       "HLTB Main:",
       `${context.howLongToBeat.gameplayMain.toFixed(1)} hours`,
     );
     addSteamAppInfoBlockLine(
+      document,
       "HLTB Main+Extras:",
       `${context.howLongToBeat.gameplayMainExtra.toFixed(1)} hours`,
     );
     addSteamAppInfoBlockLine(
+      document,
       "HLTB 100%:",
       `${context.howLongToBeat.gameplayComplete.toFixed(1)} hours`,
     );
   }
 }
 
-function addSteamAppInfoBlockLine(label: string, value: string): void {
+function addSteamAppInfoBlockLine(
+  document: Document,
+  label: string,
+  value: string,
+): void {
   const labelElement = document.createElement("b");
   labelElement.textContent = label;
   document
