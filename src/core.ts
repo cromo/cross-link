@@ -10,8 +10,10 @@ export async function runAugmenter<PageContext, ExternalContext>(
   }: PageAugmenterSteps<PageContext, ExternalContext>,
 ): Promise<boolean> {
   const shouldAugmentPage = guard(document);
+  console.log('should augment:', shouldAugmentPage)
   if (shouldAugmentPage) {
-    const pageContext = extract(document);
+    const pageContext = await extract(document);
+    console.log('page context', pageContext);
     augment({ ...pageContext, ...(await collect(pageContext)) });
   }
   return shouldAugmentPage;

@@ -28,7 +28,7 @@ export type PageAugmenterSteps<PageContext, ExternalContext> = {
    * @returns Context extracted from the document, whether that be from the URL
    * or page content.
    */
-  extract: (document: Document) => PageContext;
+  extract: (document: Document) => Promise<PageContext>;
   /**
    * Collects external data using the page context as input.
    *
@@ -62,7 +62,7 @@ export type PageAugmenterSteps<PageContext, ExternalContext> = {
  */
 export function pageAugmenterSteps<PageContext, ExternalContext>(
   guard: ActivationGuard,
-  extractor: (document: Document) => PageContext,
+  extractor: (document: Document) => Promise<PageContext>,
   collector: (context: PageContext) => Promise<ExternalContext>,
   augmenter: (context: PageContext & ExternalContext) => void,
 ): PageAugmenterSteps<PageContext, ExternalContext> {

@@ -15,10 +15,10 @@ function steamAppActivationGuard(document: Document) {
   );
 }
 
-function steamAppBaseDataExtractor(document: Document): {
+function steamAppBaseDataExtractor(document: Document): Promise<{
   steam: { appId: string; price: number };
-} {
-  return {
+}> {
+  return Promise.resolve({
     steam: {
       // Because of the activation guard we know that the match succeeds.
       appId: document.location.href.match(
@@ -30,7 +30,7 @@ function steamAppBaseDataExtractor(document: Document): {
         .querySelectorAll(".game_purchase_price")[0]
         .getAttribute("data-price-final")!,
     },
-  };
+  });
 }
 
 async function collectExternalSteamAppContext(context: {

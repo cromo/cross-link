@@ -29,6 +29,7 @@ module.exports = {
 // @grant GM.xmlHttpRequest
 // @grant GM.notification
 // @include https://store.steampowered.com/app/*
+// @include https://www.youtube.com/watch*
 // ==/UserScript==
 `.trim(),
       raw: true,
