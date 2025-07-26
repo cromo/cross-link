@@ -38,11 +38,7 @@ async function youTubeVideoBaseDataExtractor(document: Document): Promise<{
         });
       });
     });
-    // Make sure we don't spin forever, just in case.
-    setTimeout(() => {
-      observer.disconnect();
-      resolve(undefined);
-    }, 10 * 1000);
+
     observer.observe(document, { childList: true, subtree: true });
   });
 
