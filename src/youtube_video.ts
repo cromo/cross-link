@@ -60,24 +60,29 @@ async function youTubeVideoBaseDataExtractor(document: Document): Promise<{
 async function collectExternalYouTubeVideoContext(context: {
   youtube: {channel?: {id: string; name: string}; video: {id: string}};
 }): Promise<{obsidian: {channelFileName?: string; videoFileName?: string}}> {
-  const channelNote = await obsidianRestApiDataviewSearch(`
+  const [channelNote, videoNote] = await Promise.all( [obsidianRestApiDataviewSearch(`
     TABLE
     FROM "clippings"
     WHERE econtains(aliases, "${context.youtube.channel?.id}")
-  `);
+  `), obsidianRestApiDataviewSearch(`
+    TABLE
+    FROM "clippings"
+    WHERE econtains(aliases, "youtube:video/${context.youtube.video.id}")
+    `)]);
   return {
     obsidian: {
       channelFileName:
         context.youtube.channel && 0 < channelNote.length
           ? channelNote[0].filename
           : undefined,
+      videoFileName: videoNote.length ? videoNote[0].filename : undefined,
     },
   };
 }
 
 function augmentYouTubeVideoPage(
   document: Document,
-  context: {obsidian: {channelFileName?: string}},
+  context: {obsidian: {channelFileName?: string, videoFileName?: string}},
 ): void {
   const channelInfoElement = document.querySelector("#upload-info");
   const formattedString = document.createElement("yt-formatted-string");
@@ -102,4 +107,27 @@ function augmentYouTubeVideoPage(
 
     channelInfoElement?.appendChild(notInObsidianElement);
   }
+
+    const videoButtonsContainer = document.querySelector('.cbTitleButtonContainer');
+  if (context.obsidian.videoFileName) {
+    const linkToVideoClippingElement = document.createElement('a');
+    linkToVideoClippingElement.textContent = "O";
+    const openUrl = new URL("obsidian://open");
+    openUrl.search = new URLSearchParams({
+      vault: "pwiki",
+      file: context.obsidian.videoFileName.slice(0, -".md".length),
+    })
+      .toString()
+      .replace(/\+/g, "%20");
+    linkToVideoClippingElement.href = openUrl.toString();
+    linkToVideoClippingElement.style = `color: var(--yt-spec-text-primary); font-family: "Roboto","Arial",sans-serif; font-size: 2rem; line-height: 2.8rem; font-weight: 700;`
+
+    videoButtonsContainer?.appendChild(linkToVideoClippingElement);
+  } else {
+    const notInObsidianElement = document.createElement("span");
+    notInObsidianElement.textContent = "X";
+
+    videoButtonsContainer?.appendChild(notInObsidianElement);
+  }
+
 }
