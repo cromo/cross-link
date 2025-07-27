@@ -1,5 +1,5 @@
-import { pageAugmenterSteps } from "./model";
-import { obsidianRestApiDataviewSearch } from "./obsidian_rest_api";
+import {pageAugmenterSteps} from "./model";
+import {obsidianRestApiDataviewSearch} from "./obsidian_rest_api";
 
 export const youtubeVideoAugmenter = pageAugmenterSteps(
   youTubeVideoActivationGuard,
@@ -13,10 +13,10 @@ function youTubeVideoActivationGuard(document: Document) {
 }
 
 async function youTubeVideoBaseDataExtractor(document: Document): Promise<{
-  youtube: { channel?: { id: string; name: string }; video: { id: string } };
+  youtube: {channel?: {id: string; name: string}; video: {id: string}};
 }> {
   const publishedByChannel = await new Promise<
-    { id: string; name: string } | undefined
+    {id: string; name: string} | undefined
   >((resolve) => {
     const observer = new MutationObserver((mutations, observer) => {
       mutations.forEach((mutation) => {
@@ -39,7 +39,7 @@ async function youTubeVideoBaseDataExtractor(document: Document): Promise<{
       });
     });
 
-    observer.observe(document, { childList: true, subtree: true });
+    observer.observe(document, {childList: true, subtree: true});
   });
 
   // const jsonLd = JSON.parse(
@@ -57,11 +57,9 @@ async function youTubeVideoBaseDataExtractor(document: Document): Promise<{
   return context;
 }
 
-async function collectExternalYouTubeVideoContext(
-  context: {
-  youtube: { channel?: { id: string; name: string }; video: { id: string } };
-},
-): Promise<{obsidian: {channelFileName?: string, videoFileName?: string}}> {
+async function collectExternalYouTubeVideoContext(context: {
+  youtube: {channel?: {id: string; name: string}; video: {id: string}};
+}): Promise<{obsidian: {channelFileName?: string; videoFileName?: string}}> {
   const channelNote = await obsidianRestApiDataviewSearch(`
     TABLE
     FROM "clippings"
@@ -69,30 +67,39 @@ async function collectExternalYouTubeVideoContext(
   `);
   return {
     obsidian: {
-    channelFileName: context.youtube.channel && 0 < channelNote.length ? channelNote[0].filename : undefined
-  }};
+      channelFileName:
+        context.youtube.channel && 0 < channelNote.length
+          ? channelNote[0].filename
+          : undefined,
+    },
+  };
 }
 
-function augmentYouTubeVideoPage(document: Document, context: {obsidian: {channelFileName?: string}}): void {
+function augmentYouTubeVideoPage(
+  document: Document,
+  context: {obsidian: {channelFileName?: string}},
+): void {
   const channelInfoElement = document.querySelector("#upload-info");
   const formattedString = document.createElement("yt-formatted-string");
   formattedString.classList.add("style-scope", "ytd-video-owner-renderer");
   if (context.obsidian.channelFileName) {
     const linkToChannelClippingElement = document.createElement("a");
-    linkToChannelClippingElement.textContent = ("View in Obsidian");
+    linkToChannelClippingElement.textContent = "View in Obsidian";
     const openUrl = new URL("obsidian://open");
-      openUrl.search = new URLSearchParams({
-        vault: "pwiki",
-        file: context.obsidian.channelFileName.slice(0, -".md".length),
-      }).toString().replace(/\+/g, "%20");
+    openUrl.search = new URLSearchParams({
+      vault: "pwiki",
+      file: context.obsidian.channelFileName.slice(0, -".md".length),
+    })
+      .toString()
+      .replace(/\+/g, "%20");
     linkToChannelClippingElement.href = openUrl.toString();
     linkToChannelClippingElement.style = `color: var(--yt-endpoint-color,var(--yt-spec-text-primary)); font-family: "Roboto","Arial",sans-serif; font-size: 1.2rem; text-decoration: none;`;
 
     channelInfoElement?.appendChild(linkToChannelClippingElement);
   } else {
     const notInObsidianElement = document.createElement("span");
-    notInObsidianElement.textContent = ("Not in Obsidian");
-    
+    notInObsidianElement.textContent = "Not in Obsidian";
+
     channelInfoElement?.appendChild(notInObsidianElement);
   }
 }

@@ -1,6 +1,6 @@
-import { pageAugmenterSteps } from "./model";
-import { type HltbGameInfo, getHltbGameData } from "./how_long_to_beat";
-import { getWikidataGameInfo } from "./wikidata";
+import {pageAugmenterSteps} from "./model";
+import {type HltbGameInfo, getHltbGameData} from "./how_long_to_beat";
+import {getWikidataGameInfo} from "./wikidata";
 
 export const steamAppAugmenter = pageAugmenterSteps(
   steamAppActivationGuard,
@@ -16,7 +16,7 @@ function steamAppActivationGuard(document: Document) {
 }
 
 function steamAppBaseDataExtractor(document: Document): Promise<{
-  steam: { appId: string; price: number };
+  steam: {appId: string; price: number};
 }> {
   return Promise.resolve({
     steam: {
@@ -34,16 +34,16 @@ function steamAppBaseDataExtractor(document: Document): Promise<{
 }
 
 async function collectExternalSteamAppContext(context: {
-  steam: { appId: string; price: number };
-}): Promise<{ howLongToBeat: HltbGameInfo }> {
+  steam: {appId: string; price: number};
+}): Promise<{howLongToBeat: HltbGameInfo}> {
   const gameInfo = await getWikidataGameInfo(context.steam.appId);
   const howLongToBeat = await getHltbGameData(gameInfo.howLongToBeatId);
-  return { howLongToBeat };
+  return {howLongToBeat};
 }
 
 function augmentSteamAppPage(
   document: Document,
-  context: { howLongToBeat: HltbGameInfo },
+  context: {howLongToBeat: HltbGameInfo},
 ): void {
   if (context.howLongToBeat) {
     addSteamAppInfoBlockLine(

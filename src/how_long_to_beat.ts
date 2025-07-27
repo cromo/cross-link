@@ -1,4 +1,4 @@
-import { xhr } from "./net";
+import {xhr} from "./net";
 
 export type HltbGameInfo = {
   id: string;
@@ -14,7 +14,7 @@ export type HltbGameInfo = {
 
 export async function getHltbGameData(id: string): Promise<HltbGameInfo> {
   return parseHltbGamePage(
-    (await xhr({ url: `https://howlongtobeat.com/game/${id}` })).responseText,
+    (await xhr({url: `https://howlongtobeat.com/game/${id}`})).responseText,
   );
 }
 

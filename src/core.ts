@@ -1,4 +1,4 @@
-import { PageAugmenter, type PageAugmenterSteps } from "./model";
+import {PageAugmenter, type PageAugmenterSteps} from "./model";
 
 export async function runAugmenter<PageContext, ExternalContext>(
   document: Document,
@@ -14,7 +14,7 @@ export async function runAugmenter<PageContext, ExternalContext>(
   if (shouldAugmentPage) {
     const pageContext = await extract(document);
     // console.log("page context", pageContext);
-    augment(document, { ...pageContext, ...(await collect(pageContext)) });
+    augment(document, {...pageContext, ...(await collect(pageContext))});
   }
   return shouldAugmentPage;
 }
