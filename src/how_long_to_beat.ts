@@ -1,41 +1,47 @@
 import {xhr} from "./net";
 
+/**
+ * Information about a game from [HowLongToBeat](https://howlongtobeat.com/).
+ */
 export type HltbGameInfo = {
+  /** The HowLongToBeat ID for a game. */
   id: string;
+  /** The name of the game. */
   gameName: string;
+  /** A description of the game. */
   gameDescription: string;
   // These are in hours
+  /**
+   * Approximately how long it takes to get through the main campaign of the
+   * game in hours.
+   */
   gameplayMain: number;
+  /**
+   * Approximately how long it takes to get through the main campaign and
+   * optional sidequests in hours.
+   */
   gameplayMainExtra: number;
+  /**
+   * Approximately how long it takes to unlock everything in a game in hours.
+   */
   gameplayComplete: number;
+  /**
+   * How closely this game matches the search term.
+   */
   similarity: number;
+  /**
+   * The term that was searched for that included this game in its result set.
+   */
   searchTerm: string;
 };
 
-export async function getHltbGameData(id: string): Promise<HltbGameInfo> {
-  return parseHltbGamePage(
-    (await xhr({url: `https://howlongtobeat.com/game/${id}`})).responseText,
-  );
+function urlForGame(id: string): string {
+  return `https://howlongtobeat.com/game/${id}`;
 }
 
-function parseHltbGamePage(html: string): HltbGameInfo {
-  const document = Document.parseHTMLUnsafe(html);
-  /*
-  // Based on https://github.com/ckatzorke/howlongtobeat/blob/master/src/main/howlongtobeat.ts#L113 (WTFPL)
-  console.log(document.querySelectorAll("div[class*=GameNavigation_profile_nav__] a"), document.body)
-  //const id = document.querySelectorAll("div[class*=GameNavigation_profile_nav__] a")[0].attributes.href.textContent.split("/")[2];
-  const gameName = document.querySelectorAll("div[class*=GameHeader_profile_header__]")[0].textContent.trim();
-  const imageUrl = document.querySelectorAll("div[class*=GameHeader_game_image__] img")[0].attributes.src;
-  const gameplay = [...document.querySelectorAll("div[class*=GameStats_game_times__] li")].reduce((times, gameStyle) => {
-    const style = gameStyle.getElementsByTagName("h4")[0].textContent;
-    const time = gameStyle.getElementsByTagName("h5")[0].textContent;
-    return style.startsWith("Main Story")  || style.startsWith("Single-Player") || style.startsWith("Solo") ? { ...times, gameplayMain: time } :
-      style.startsWith("Main + Sides") || style.startsWith("Co-Op") ? { ...times, gameplayMainExtra: time } :
-      style.startsWith("Completionist") || style.startsWith("Vs.") ? { ...times, gameplayComplete: time } :
-      times;
-  }, {});
-  //*/
-  // Lucky! At least on 2024-11-27, HLTB is a NextJS site, so it includes a lot of info directly in the page as JSON.
+function scrape(document: Document): HltbGameInfo {
+  // Lucky! At least on 2024-11-27, HLTB is a NextJS site, so it includes a lot
+  // of info directly in the page as JSON.
   const embeddedJson = JSON.parse(
     document.getElementById("__NEXT_DATA__")!.innerText,
   );
@@ -54,4 +60,15 @@ function parseHltbGamePage(html: string): HltbGameInfo {
     similarity: 1,
     searchTerm: game.game_name,
   };
+}
+
+async function scrapeHtml<T>(
+  url: string,
+  scraper: (document: Document) => T,
+): Promise<T> {
+  return scraper(Document.parseHTMLUnsafe((await xhr({url})).responseText));
+}
+
+export async function getHltbGameData(id: string): Promise<HltbGameInfo> {
+  return scrapeHtml(urlForGame(id), scrape);
 }
