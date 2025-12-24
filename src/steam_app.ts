@@ -24,11 +24,13 @@ function steamAppBaseDataExtractor(document: Document): Promise<{
       appId: document.location.href.match(
         /^https:\/\/store.steampowered.com\/app\/(\d+)/,
       )![1],
-      // Price in pennies.
+      // Price in cents.
       // TODO: check for whether there is actually a price. Some pages may not have one, e.g. if it's not out yet.
-      price: +document
-        .querySelectorAll(".game_purchase_price")[0]
-        .getAttribute("data-price-final")!,
+      // TODO: handle cases where the price is not part of the initial page load, e.g. when the item is on sale.
+      price: +(document.querySelectorAll(".game_purchase_price") ??
+        document.querySelectorAll(".discount_final_price"))?.[0].getAttribute(
+        "data-price-final",
+      )!,
     },
   });
 }
