@@ -60,15 +60,18 @@ async function youTubeVideoBaseDataExtractor(document: Document): Promise<{
 async function collectExternalYouTubeVideoContext(context: {
   youtube: {channel?: {id: string; name: string}; video: {id: string}};
 }): Promise<{obsidian: {channelFileName?: string; videoFileName?: string}}> {
-  const [channelNote, videoNote] = await Promise.all( [obsidianRestApiDataviewSearch(`
+  const [channelNote, videoNote] = await Promise.all([
+    obsidianRestApiDataviewSearch(`
     TABLE
     FROM "clippings"
     WHERE econtains(aliases, "${context.youtube.channel?.id}")
-  `), obsidianRestApiDataviewSearch(`
+  `),
+    obsidianRestApiDataviewSearch(`
     TABLE
     FROM "clippings"
     WHERE econtains(aliases, "youtube:video/${context.youtube.video.id}")
-    `)]);
+    `),
+  ]);
   return {
     obsidian: {
       channelFileName:
@@ -82,7 +85,7 @@ async function collectExternalYouTubeVideoContext(context: {
 
 function augmentYouTubeVideoPage(
   document: Document,
-  context: {obsidian: {channelFileName?: string, videoFileName?: string}},
+  context: {obsidian: {channelFileName?: string; videoFileName?: string}},
 ): void {
   const channelInfoElement = document.querySelector("#upload-info");
   const formattedString = document.createElement("yt-formatted-string");
@@ -108,9 +111,11 @@ function augmentYouTubeVideoPage(
     channelInfoElement?.appendChild(notInObsidianElement);
   }
 
-    const videoButtonsContainer = document.querySelector('.cbTitleButtonContainer');
+  const videoButtonsContainer = document.querySelector(
+    ".cbTitleButtonContainer",
+  );
   if (context.obsidian.videoFileName) {
-    const linkToVideoClippingElement = document.createElement('a');
+    const linkToVideoClippingElement = document.createElement("a");
     linkToVideoClippingElement.textContent = "O";
     const openUrl = new URL("obsidian://open");
     openUrl.search = new URLSearchParams({
@@ -120,7 +125,7 @@ function augmentYouTubeVideoPage(
       .toString()
       .replace(/\+/g, "%20");
     linkToVideoClippingElement.href = openUrl.toString();
-    linkToVideoClippingElement.style = `color: var(--yt-spec-text-primary); font-family: "Roboto","Arial",sans-serif; font-size: 2rem; line-height: 2.8rem; font-weight: 700;`
+    linkToVideoClippingElement.style = `color: var(--yt-spec-text-primary); font-family: "Roboto","Arial",sans-serif; font-size: 2rem; line-height: 2.8rem; font-weight: 700;`;
 
     videoButtonsContainer?.appendChild(linkToVideoClippingElement);
   } else {
@@ -129,5 +134,4 @@ function augmentYouTubeVideoPage(
 
     videoButtonsContainer?.appendChild(notInObsidianElement);
   }
-
 }
