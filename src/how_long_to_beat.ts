@@ -2,6 +2,10 @@ import {xhr} from "./net";
 
 /**
  * Information about a game from [HowLongToBeat](https://howlongtobeat.com/).
+ * 
+ * This structure was informed by
+ * https://github.com/ckatzorke/howlongtobeat/blob/master/src/main/howlongtobeat.ts#L80
+ * which is licensed under the WTFPL.
  */
 export type HltbGameInfo = {
   /** The HowLongToBeat ID for a game. */
